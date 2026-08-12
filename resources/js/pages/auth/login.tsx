@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { toast } from 'sonner';
+import { FormEventHandler, useEffect } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -36,8 +37,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
     };
 
     return (
-        <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
-            <Head title="Log in" />
+        <AuthLayout title="Masuk ke Akun Anda" description="Masukkan email dan password Anda">
+            <Head title="Masuk" />
 
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
@@ -90,16 +91,16 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <Label htmlFor="remember">Remember me</Label>
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full" tabIndex={4} disabled={processing}>
+                    <Button type="submit" className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" tabIndex={4} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Log in
                     </Button>
                 </div>
 
                 <div className="text-muted-foreground text-center text-sm">
-                    Don't have an account?{' '}
+                    Belum punya akun?{' '}
                     <TextLink href={route('register')} tabIndex={5}>
-                        Sign up
+                        Daftar sekarang
                     </TextLink>
                 </div>
             </form>

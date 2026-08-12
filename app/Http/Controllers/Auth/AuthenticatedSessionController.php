@@ -32,8 +32,13 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        
+        if ($request->user()->hasRole('penjual')) {
+            return redirect()->intended(route('seller.dashboard', absolute: false))->with('success', 'Berhasil masuk! Selamat datang kembali.');
+        }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('dashboard', absolute: false))
+            ->with('success', 'Berhasil masuk! Selamat datang kembali.');
     }
 
     /**
@@ -46,6 +51,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'Berhasil keluar. Sampai jumpa!');
     }
 }

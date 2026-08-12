@@ -3,6 +3,8 @@ import type { Config } from 'ziggy-js';
 
 export interface Auth {
     user: User;
+    roles?: string[];
+    permissions?: string[];
 }
 
 export interface BreadcrumbItem {
@@ -41,3 +43,5 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & SharedData;

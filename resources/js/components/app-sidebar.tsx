@@ -2,18 +2,10 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, Folder, GraduationCap, LayoutGrid, Package, ShoppingCart } from 'lucide-react';
 import AppLogo from './app-logo';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -29,6 +21,39 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const isSeller = auth?.user?.role === 'penjual';
+
+    const mainNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/dashboard',
+            icon: LayoutGrid,
+        },
+        ...(isSeller ? [
+            {
+                title: 'Seller Dashboard',
+                href: '/seller/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Products',
+                href: '/seller/products',
+                icon: Package,
+            },
+            {
+                title: 'Orders',
+                href: '/seller/orders',
+                icon: ShoppingCart,
+            }
+        ] : []),
+        {
+            title: 'Belajar React',
+            href: '/learn',
+            icon: GraduationCap,
+        },
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>

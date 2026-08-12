@@ -7,8 +7,11 @@ interface AppLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
+import GlobalToast from '@/components/global-toast';
+
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
     <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+        <GlobalToast />
         {children}
     </AppLayoutTemplate>
 );

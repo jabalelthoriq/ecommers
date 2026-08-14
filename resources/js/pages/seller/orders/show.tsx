@@ -1,6 +1,7 @@
 import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Clock, Package, CheckCircle, XCircle, User, Calendar, MapPin, Tag } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
 export default function Show({ order }: { order: any }) {
     // Make sure we have a fallback for order
@@ -15,9 +16,7 @@ export default function Show({ order }: { order: any }) {
         put(`/seller/orders/${currentOrder.id}`);
     };
 
-    const formatRupiah = (value: number) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
-    };
+
 
     const getStatusStyle = (status: string) => {
         switch (status) {

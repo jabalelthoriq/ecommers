@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from '@inertiajs/react';
 import EcommerceLayout from '@/layouts/ecommerce-layout';
 import ProductCard from '@/components/ecommerce/product-card';
 import CategoryCard from '@/components/ecommerce/category-card';
 import { Rocket, Zap, PartyPopper, Gem, Truck, ShieldCheck, RefreshCcw, Headphones } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
 interface Image {
     id: number;
@@ -23,7 +25,7 @@ interface Product {
     name: string;
     slug: string;
     price: number;
-    discount_price?: number;
+    discount_price: number | null;
     images: Image[];
     category: Category;
     reviews_avg_rating?: number;
@@ -37,13 +39,7 @@ interface Props {
     flashSales: Product[];
 }
 
-const formatRupiah = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0
-    }).format(price);
-};
+
 
 // Intersection Observer Fade-In Component
 const FadeInSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => {
@@ -222,11 +218,11 @@ export default function Home({ categories = [], newArrivals = [], bestSellers = 
                             <p className="text-xl md:text-2xl text-indigo-100 mb-10 max-w-2xl font-light leading-relaxed">
                                 {slide.desc}
                             </p>
-                            <a href="/shop" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white bg-indigo-600 rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(79,70,229,0.5)]">
+                            <Link href="/shop" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white bg-indigo-600 rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(79,70,229,0.5)]">
                                 <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
                                 <span className="relative text-lg">Shop Collection</span>
                                 <svg className="relative w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </a>
+                            </Link>
                         </div>
                     ))}
                     {/* Placeholder for layout height */}
@@ -234,7 +230,7 @@ export default function Home({ categories = [], newArrivals = [], bestSellers = 
                         <span className="inline-block py-1 px-3 mb-6">Explore</span>
                         <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6">Discover Premium Lifestyle</h1>
                         <p className="text-xl md:text-2xl mb-10">Elevate your everyday with our carefully curated collection of luxury items.</p>
-                        <a href="#" className="px-8 py-4 text-lg">Shop Collection</a>
+                        <Link href="#" className="px-8 py-4 text-lg">Shop Collection</Link>
                     </div>
                 </div>
             </section>
@@ -348,10 +344,10 @@ export default function Home({ categories = [], newArrivals = [], bestSellers = 
                                 <span className="text-indigo-600 font-bold tracking-wider uppercase text-sm mb-2 block">Just Landed</span>
                                 <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">New Arrivals</h2>
                             </div>
-                            <a href="/shop" className="hidden sm:inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-500 transition group">
+                            <Link href="/shop" className="hidden sm:inline-flex items-center text-sm font-bold text-indigo-600 hover:text-indigo-500 transition group">
                                 View Collection 
                                 <span className="transform transition group-hover:translate-x-1 ml-1">&rarr;</span>
-                            </a>
+                            </Link>
                         </div>
                     </FadeInSection>
                 </div>
@@ -374,10 +370,10 @@ export default function Home({ categories = [], newArrivals = [], bestSellers = 
                                 <span className="text-purple-600 font-bold tracking-wider uppercase text-sm mb-2 block">Most Popular</span>
                                 <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Best Sellers</h2>
                             </div>
-                            <a href="/shop" className="hidden sm:inline-flex items-center text-sm font-bold text-purple-600 hover:text-purple-500 transition group">
+                            <Link href="/shop" className="hidden sm:inline-flex items-center text-sm font-bold text-purple-600 hover:text-purple-500 transition group">
                                 View Collection
                                 <span className="transform transition group-hover:translate-x-1 ml-1">&rarr;</span>
-                            </a>
+                            </Link>
                         </div>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

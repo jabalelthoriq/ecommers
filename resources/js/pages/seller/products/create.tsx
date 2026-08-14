@@ -1,7 +1,29 @@
 import EcommerceLayout from '@/layouts/ecommerce-layout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, router, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, PackagePlus, Image as ImageIcon } from 'lucide-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useState, useEffect } from 'react';
+
 import InputError from '@/components/input-error';
+import DashboardAdmin from '@/layouts/dashboard-admin';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const productSchema = z.object({
+    name: z.string().min(1, "Nama produk tidak boleh kosong"),
+    category_id: z.string().min(1, "Kategori harus dipilih"),
+    description: z.string().min(1, "Deskripsi produk tidak boleh kosong"),
+    price: z.coerce.number().min(1, "Harga minimal 1"),
+    stock: z.coerce.number().min(0, "Stok tidak boleh negatif"),
+    image: z.any().refine((file) => file !== null && file !== undefined && file !== '', "Gambar produk wajib diunggah"),
+});
+
+type ProductSchema = z.infer<typeof productSchema>;
 
 interface Category {
     id: number;
@@ -9,26 +31,47 @@ interface Category {
 }
 
 export default function Create({ categories = [] }: { categories?: Category[] }) {
-    const { data, setData, post, processing, errors } = useForm({
-        name: '',
-        category_id: '',
-        description: '',
-        price: '',
-        stock: '',
-        image: null as File | null,
+    const { errors: serverErrors } = usePage().props as unknown as { errors: Record<string, string> };
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        setValue,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<z.input<typeof productSchema>>({
+        resolver: zodResolver(productSchema),
+        defaultValues: {
+            name: '',
+            category_id: '',
+            description: '',
+            price: undefined as any,
+            stock: undefined as any,
+            image: null,
+        },
     });
 
-    const submit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/seller/products');
+    const imageFile = watch('image');
+
+    const onSubmit = (data: any) => {
+        router.post('/seller/products', data);
     };
 
+    // Cleanup object URL
+    useEffect(() => {
+        return () => {
+            if (imagePreview) URL.revokeObjectURL(imagePreview);
+        };
+    }, [imagePreview]);
+
     return (
-        <EcommerceLayout>
+        <DashboardAdmin>
             <Head title="Create Product" />
 
             <div className="py-12 bg-gray-50/50 min-h-screen">
-                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
                     
                     {/* Header Section */}
                     <div className="mb-8 flex flex-col items-start gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -47,7 +90,7 @@ export default function Create({ categories = [] }: { categories?: Category[] })
                     </div>
 
                     {/* Form Section */}
-                    <form onSubmit={submit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="p-8 space-y-8">
                             
                             {/* Basic Info Section */}
@@ -55,45 +98,46 @@ export default function Create({ categories = [] }: { categories?: Category[] })
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Basic Information</h3>
                                 <div className="space-y-5">
                                     <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                                        <input 
+                                        <Label htmlFor="name" className="mb-1 block">Product Name</Label>
+                                        <Input 
                                             id="name" 
                                             type="text"
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                             placeholder="e.g. Premium Wireless Headphones"
-                                            value={data.name} 
-                                            onChange={(e) => setData('name', e.target.value)} 
+                                            {...register('name')}
                                         />
-                                        <InputError message={errors.name} className="mt-1" />
+                                        <InputError message={errors.name?.message || serverErrors.name} className="mt-1" />
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                        <select 
-                                            id="category_id" 
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
-                                            value={data.category_id} 
-                                            onChange={(e) => setData('category_id', e.target.value)} 
-                                        >
-                                            <option value="">Select a category</option>
-                                            {categories.map(cat => (
-                                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                            ))}
-                                        </select>
-                                        <InputError message={errors.category_id} className="mt-1" />
+                                        <Label htmlFor="category_id" className="mb-1 block">Category</Label>
+                                        <Controller
+                                            name="category_id"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                    <SelectTrigger id="category_id">
+                                                        <SelectValue placeholder="Select a category" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {categories.map(cat => (
+                                                            <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                        <InputError message={errors.category_id?.message || serverErrors.category_id} className="mt-1" />
                                     </div>
 
                                     <div>
-                                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                        <textarea 
+                                        <Label htmlFor="description" className="mb-1 block">Description</Label>
+                                        <Textarea 
                                             id="description" 
                                             rows={5}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                             placeholder="Describe your product's features and benefits..."
-                                            value={data.description} 
-                                            onChange={(e) => setData('description', e.target.value)} 
+                                            {...register('description')}
                                         />
-                                        <InputError message={errors.description} className="mt-1" />
+                                        <InputError message={errors.description?.message || serverErrors.description} className="mt-1" />
                                     </div>
                                 </div>
                             </div>
@@ -103,36 +147,33 @@ export default function Create({ categories = [] }: { categories?: Category[] })
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Pricing & Inventory</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (Rp)</label>
-                                        <div className="relative rounded-md shadow-sm">
+                                        <Label htmlFor="price" className="mb-1 block">Price (Rp)</Label>
+                                        <div className="relative">
                                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                                 <span className="text-gray-500 sm:text-sm">Rp</span>
                                             </div>
-                                            <input 
+                                            <Input 
                                                 id="price" 
                                                 type="number" 
                                                 min="0"
-                                                className="block w-full rounded-lg border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                                                className="pl-10"
                                                 placeholder="0"
-                                                value={data.price} 
-                                                onChange={(e) => setData('price', e.target.value)} 
+                                                {...register('price')}
                                             />
                                         </div>
-                                        <InputError message={errors.price} className="mt-1" />
+                                        <InputError message={errors.price?.message || serverErrors.price} className="mt-1" />
                                     </div>
 
                                     <div>
-                                        <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">Available Stock</label>
-                                        <input 
+                                        <Label htmlFor="stock" className="mb-1 block">Available Stock</Label>
+                                        <Input 
                                             id="stock" 
                                             type="number" 
                                             min="0"
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                             placeholder="0"
-                                            value={data.stock} 
-                                            onChange={(e) => setData('stock', e.target.value)} 
+                                            {...register('stock')}
                                         />
-                                        <InputError message={errors.stock} className="mt-1" />
+                                        <InputError message={errors.stock?.message || serverErrors.stock} className="mt-1" />
                                     </div>
                                 </div>
                             </div>
@@ -140,21 +181,40 @@ export default function Create({ categories = [] }: { categories?: Category[] })
                             {/* Media Section */}
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Product Image</h3>
+                                {imagePreview && (
+                                    <div className="mb-4">
+                                        <p className="text-sm font-medium text-gray-700 mb-2">Image Preview:</p>
+                                        <div className="h-32 w-32 rounded-lg border border-gray-200 overflow-hidden">
+                                            <img src={imagePreview} alt="Preview" className="h-full w-full object-cover object-center" />
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="mt-2 flex justify-center rounded-xl border border-dashed border-gray-300 px-6 py-10 bg-gray-50 hover:bg-gray-100 transition-colors">
                                     <div className="text-center">
                                         <ImageIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
                                         <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
                                             <label htmlFor="image" className="relative cursor-pointer rounded-md bg-white px-3 py-1 font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500 border border-indigo-100 shadow-sm">
                                                 <span>Upload a file</span>
-                                                <input id="image" type="file" className="sr-only" onChange={(e) => setData('image', e.target.files?.[0] || null)} accept="image/*" />
+                                                <input 
+                                                    id="image" 
+                                                    type="file" 
+                                                    className="sr-only" 
+                                                    accept="image/*" 
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0] || null;
+                                                        setValue('image', file, { shouldValidate: true });
+                                                        if (file) setImagePreview(URL.createObjectURL(file));
+                                                        else setImagePreview(null);
+                                                    }}
+                                                />
                                             </label>
                                         </div>
                                         <p className="text-xs leading-5 text-gray-500 mt-2">
-                                            {data.image ? data.image.name : 'PNG, JPG, GIF up to 2MB'}
+                                            {imageFile ? imageFile.name : 'PNG, JPG, GIF up to 2MB'}
                                         </p>
                                     </div>
                                 </div>
-                                <InputError message={errors.image as string} className="mt-2" />
+                                <InputError message={errors.image?.message as string || serverErrors.image} className="mt-2" />
                             </div>
 
                         </div>
@@ -163,18 +223,18 @@ export default function Create({ categories = [] }: { categories?: Category[] })
                             <Link href="/seller/products" className="text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2">
                                 Cancel
                             </Link>
-                            <button 
+                            <Button 
                                 type="submit" 
-                                disabled={processing}
-                                className="inline-flex items-center justify-center px-6 py-2.5 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isSubmitting}
+                                className="bg-violet-600 px-6 text-white hover:bg-violet-700"
                             >
-                                {processing ? 'Saving...' : 'Save Product'}
-                            </button>
+                                {isSubmitting ? 'Saving...' : 'Save Product'}
+                            </Button>
                         </div>
                     </form>
 
                 </div>
             </div>
-        </EcommerceLayout>
+        </DashboardAdmin>
     );
 }

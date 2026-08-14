@@ -2,10 +2,9 @@ import React from 'react';
 import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { Link } from '@inertiajs/react';
 import { Package, ChevronRight, Clock, CheckCircle } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
-const formatRupiah = (price: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
-};
+
 
 export default function Index({ orders = [] }: { orders?: any[] }) {
     const pastOrders = orders || [];

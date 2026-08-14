@@ -2,6 +2,7 @@ import React from 'react';
 import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { Link } from '@inertiajs/react';
 import { Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
 interface CartItem {
     id: number;
@@ -15,9 +16,7 @@ interface CartProps {
     cartItems?: CartItem[];
 }
 
-const formatRupiah = (price: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
-};
+
 
 export default function Cart({ cartItems = [] }: CartProps) {
     const items = cartItems || [];
@@ -56,9 +55,9 @@ export default function Cart({ cartItems = [] }: CartProps) {
                                                 <div>
                                                     <div className="flex justify-between">
                                                         <h3 className="text-sm">
-                                                            <a href="#" className="font-medium text-gray-700 hover:text-indigo-600 transition-colors">
+                                                            <Link href="#" className="font-medium text-gray-700 hover:text-indigo-600 transition-colors">
                                                                 {item.name}
-                                                            </a>
+                                                            </Link>
                                                         </h3>
                                                     </div>
                                                     <p className="mt-1 text-sm font-bold text-gray-900">{formatRupiah(item.price)}</p>

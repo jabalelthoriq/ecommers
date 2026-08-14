@@ -1,11 +1,10 @@
-import EcommerceLayout from '@/layouts/ecommerce-layout';
+import DashboardAdmin from '@/layouts/dashboard-admin';
 import { Head, Link } from '@inertiajs/react';
 import { Eye, Clock, Package, CheckCircle, XCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
 export default function Index({ orders = [] }: { orders: any[] }) {
-    const formatRupiah = (value: number) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
-    };
+
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -28,11 +27,11 @@ export default function Index({ orders = [] }: { orders: any[] }) {
     };
 
     return (
-        <EcommerceLayout>
+        <DashboardAdmin>
             <Head title="Orders Management" />
 
             <div className="py-12 bg-gray-50/50 min-h-screen">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
                     
                     {/* Header Section */}
                     <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -105,6 +104,6 @@ export default function Index({ orders = [] }: { orders: any[] }) {
 
                 </div>
             </div>
-        </EcommerceLayout>
+        </DashboardAdmin>
     );
 }

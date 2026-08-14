@@ -91,6 +91,9 @@ class CheckoutController extends Controller
                     'price' => $price,
                     'subtotal' => $price * $item->quantity,
                 ]);
+
+                // Reduce product stock
+                $item->product->decrement('stock', $item->quantity);
             }
 
             $cart->items()->delete();

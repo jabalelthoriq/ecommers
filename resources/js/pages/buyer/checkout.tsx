@@ -2,10 +2,9 @@ import React from 'react';
 import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { useForm, Link } from '@inertiajs/react';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
-const formatRupiah = (price: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
-};
+
 
 export default function Checkout({ cartItems = [] }: { cartItems?: any[] }) {
     const items = cartItems || [];

@@ -44,6 +44,7 @@ interface Product {
     reviews: Review[];
     rating_avg?: number;
     reviews_count?: number;
+    discount_price: number | null;
 }
 
 interface Props {

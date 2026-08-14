@@ -1,7 +1,16 @@
-import EcommerceLayout from '@/layouts/ecommerce-layout';
+import DashboardAdmin from '@/layouts/dashboard-admin';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { Package, ShoppingCart, DollarSign, PlusCircle, List, ArrowRight, TrendingUp } from 'lucide-react';
 import { PageProps } from '@/types';
+import { formatRupiah } from '@/lib/utils';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
 interface DashboardProps {
     totalProducts: number;
@@ -13,19 +22,17 @@ interface DashboardProps {
 export default function Dashboard({ totalProducts = 0, totalOrders = 0, totalRevenue = 0, recentOrders = [] }: DashboardProps) {
     const { auth } = usePage<PageProps>().props;
 
-    const formatRupiah = (value: number) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
-    };
+
 
     return (
-        <EcommerceLayout>
+        <DashboardAdmin>
             <Head title="Seller Dashboard" />
-
+        
             <div className="py-12 bg-gray-50/50 min-h-screen">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
                     
                     {/* Welcome Section with Gradient */}
-                    <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white shadow-xl relative overflow-hidden">
+                    <div className="mb-8 rounded-2xl bg-gradient-to-r from-violet-600 to-violet-700 p-8 text-white shadow-xl relative overflow-hidden">
                         <div className="relative z-10">
                             <h1 className="mb-2 text-3xl font-extrabold tracking-tight">Seller Dashboard</h1>
                             <p className="text-blue-100 max-w-xl text-lg">
@@ -33,7 +40,7 @@ export default function Dashboard({ totalProducts = 0, totalOrders = 0, totalRev
                             </p>
                             
                             <div className="mt-8 flex flex-wrap gap-4">
-                                <Link href="/seller/products/create" className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent rounded-lg shadow-md text-sm font-semibold text-blue-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all hover:scale-105">
+                                <Link href="/seller/products/create" className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent rounded-lg shadow-md text-sm font-semibold text-violet-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all hover:scale-105">
                                     <PlusCircle className="mr-2 h-5 w-5" /> Add New Product
                                 </Link>
                                 <Link href="/seller/products" className="inline-flex items-center justify-center px-5 py-2.5 border border-white/30 rounded-lg shadow-sm text-sm font-semibold text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 focus:outline-none transition-all">
@@ -100,46 +107,46 @@ export default function Dashboard({ totalProducts = 0, totalOrders = 0, totalRev
                             </Link>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-gray-50/80 text-gray-500 font-semibold border-b border-gray-100">
-                                    <tr>
-                                        <th className="px-6 py-4 uppercase tracking-wider text-xs">Order ID</th>
-                                        <th className="px-6 py-4 uppercase tracking-wider text-xs">Customer</th>
-                                        <th className="px-6 py-4 uppercase tracking-wider text-xs">Status</th>
-                                        <th className="px-6 py-4 text-right uppercase tracking-wider text-xs">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
+                            <Table>
+                                <TableHeader className="bg-gray-50/80">
+                                    <TableRow>
+                                        <TableHead className="px-6 py-4 uppercase tracking-wider text-xs font-semibold text-gray-500">Order ID</TableHead>
+                                        <TableHead className="px-6 py-4 uppercase tracking-wider text-xs font-semibold text-gray-500">Customer</TableHead>
+                                        <TableHead className="px-6 py-4 uppercase tracking-wider text-xs font-semibold text-gray-500">Status</TableHead>
+                                        <TableHead className="px-6 py-4 text-right uppercase tracking-wider text-xs font-semibold text-gray-500">Amount</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
                                     {recentOrders.length > 0 ? recentOrders.map((order: any) => (
-                                        <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-indigo-600">#{order.order_number || order.id}</td>
-                                            <td className="px-6 py-4 text-gray-700 font-medium">{order.shipping_name || order.user?.name || 'Customer'}</td>
-                                            <td className="px-6 py-4">
+                                        <TableRow key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                                            <TableCell className="px-6 py-4 font-semibold text-indigo-600">#{order.order_number || order.id}</TableCell>
+                                            <TableCell className="px-6 py-4 text-gray-700 font-medium">{order.shipping_name || order.user?.name || 'Customer'}</TableCell>
+                                            <TableCell className="px-6 py-4">
                                                 <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
                                                     {order.status}
                                                 </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right font-bold text-gray-900">
+                                            </TableCell>
+                                            <TableCell className="px-6 py-4 text-right font-bold text-gray-900">
                                                 {formatRupiah(order.total_amount || order.total || 0)}
-                                            </td>
-                                        </tr>
+                                            </TableCell>
+                                        </TableRow>
                                     )) : (
-                                        <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="h-32 text-center text-gray-500">
                                                 <div className="flex flex-col items-center justify-center">
                                                     <ShoppingCart className="h-10 w-10 text-gray-300 mb-3" />
                                                     <p>No recent orders found.</p>
                                                 </div>
-                                            </td>
-                                        </tr>
+                                            </TableCell>
+                                        </TableRow>
                                     )}
-                                </tbody>
-                            </table>
+                                </TableBody>
+                            </Table>
                         </div>
                     </div>
 
                 </div>
             </div>
-        </EcommerceLayout>
+        </DashboardAdmin>
     );
 }

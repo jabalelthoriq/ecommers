@@ -1,7 +1,10 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { FormEventHandler, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -11,11 +14,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 
-type LoginForm = {
-    email: string;
-    password: string;
-    remember: boolean;
-};
+const loginSchema = z.object({
+    email: z.string().min(1, "Email tidak boleh kosong").email("Format email tidak valid"),
+    password: z.string().min(1, "Password tidak boleh kosong"),
+    remember: z.boolean().default(false),
+});
+
+type LoginSchema = z.infer<typeof loginSchema>;
 
 interface LoginProps {
     status?: string;
@@ -23,16 +28,26 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword }: LoginProps) {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<LoginForm>>({
-        email: '',
-        password: '',
-        remember: false,
+    const { errors: serverErrors } = usePage().props as unknown as { errors: Record<string, string> };
+    
+    const {
+        register,
+        handleSubmit,
+        control,
+        setValue,
+        formState: { errors, isSubmitting },
+    } = useForm<z.input<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+            remember: false,
+        },
     });
 
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
-        post(route('login'), {
-            onFinish: () => reset('password'),
+    const onSubmit = (data: any) => {
+        router.post(route('login'), data, {
+            onFinish: () => setValue('password', ''),
         });
     };
 
@@ -40,22 +55,20 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         <AuthLayout title="Masuk ke Akun Anda" description="Masukkan email dan password Anda">
             <Head title="Masuk" />
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
                         <Input
                             id="email"
                             type="email"
-                            required
                             autoFocus
                             tabIndex={1}
                             autoComplete="email"
-                            value={data.email}
-                            onChange={(e) => setData('email', e.target.value)}
                             placeholder="email@example.com"
+                            {...register('email')}
                         />
-                        <InputError message={errors.email} />
+                        <InputError message={errors.email?.message || serverErrors.email} />
                     </div>
 
                     <div className="grid gap-2">
@@ -70,29 +83,32 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <Input
                             id="password"
                             type="password"
-                            required
                             tabIndex={2}
                             autoComplete="current-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
                             placeholder="Password"
+                            {...register('password')}
                         />
-                        <InputError message={errors.password} />
+                        <InputError message={errors.password?.message || serverErrors.password} />
                     </div>
 
                     <div className="flex items-center space-x-3">
-                        <Checkbox
-                            id="remember"
+                        <Controller
                             name="remember"
-                            checked={data.remember}
-                            onClick={() => setData('remember', !data.remember)}
-                            tabIndex={3}
+                            control={control}
+                            render={({ field }) => (
+                                <Checkbox
+                                    id="remember"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    tabIndex={3}
+                                />
+                            )}
                         />
                         <Label htmlFor="remember">Remember me</Label>
                     </div>
 
-                    <Button type="submit" className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" tabIndex={4} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                    <Button type="submit" className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" tabIndex={4} disabled={isSubmitting}>
+                        {isSubmitting && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Log in
                     </Button>
                 </div>

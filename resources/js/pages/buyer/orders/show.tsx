@@ -2,10 +2,9 @@ import React from 'react';
 import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { Link } from '@inertiajs/react';
 import { ArrowLeft, Check, Truck, Package, CreditCard } from 'lucide-react';
+import { formatRupiah } from '@/lib/utils';
 
-const formatRupiah = (price: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
-};
+
 
 export default function Show({ orderDetails }: { orderDetails?: any }) {
     const order = orderDetails;

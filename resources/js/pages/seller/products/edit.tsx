@@ -2,6 +2,11 @@ import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { ArrowLeft, Edit as EditIcon, Image as ImageIcon } from 'lucide-react';
 import InputError from '@/components/input-error';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Category {
     id: number;
@@ -67,11 +72,10 @@ export default function Edit({ product, categories = [] }: { product: Product; c
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Basic Information</h3>
                                 <div className="space-y-5">
                                     <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                                        <input 
+                                        <Label htmlFor="name" className="mb-1 block">Product Name</Label>
+                                        <Input 
                                             id="name" 
                                             type="text"
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                             placeholder="e.g. Premium Wireless Headphones"
                                             value={data.name} 
                                             onChange={(e) => setData('name', e.target.value)} 
@@ -80,27 +84,28 @@ export default function Edit({ product, categories = [] }: { product: Product; c
                                     </div>
                                     
                                     <div>
-                                        <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                                        <select 
-                                            id="category_id" 
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
-                                            value={data.category_id} 
-                                            onChange={(e) => setData('category_id', e.target.value)} 
+                                        <Label htmlFor="category_id" className="mb-1 block">Category</Label>
+                                        <Select 
+                                            value={data.category_id.toString()} 
+                                            onValueChange={(val) => setData('category_id', val)}
                                         >
-                                            <option value="">Select a category</option>
-                                            {categories.map(cat => (
-                                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                            ))}
-                                        </select>
+                                            <SelectTrigger id="category_id">
+                                                <SelectValue placeholder="Select a category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map(cat => (
+                                                    <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <InputError message={errors.category_id} className="mt-1" />
                                     </div>
 
                                     <div>
-                                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                        <textarea 
+                                        <Label htmlFor="description" className="mb-1 block">Description</Label>
+                                        <Textarea 
                                             id="description" 
                                             rows={5}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                             placeholder="Describe your product's features and benefits..."
                                             value={data.description} 
                                             onChange={(e) => setData('description', e.target.value)} 
@@ -115,16 +120,16 @@ export default function Edit({ product, categories = [] }: { product: Product; c
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Pricing & Inventory</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (Rp)</label>
-                                        <div className="relative rounded-md shadow-sm">
+                                        <Label htmlFor="price" className="mb-1 block">Price (Rp)</Label>
+                                        <div className="relative">
                                             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                                 <span className="text-gray-500 sm:text-sm">Rp</span>
                                             </div>
-                                            <input 
+                                            <Input 
                                                 id="price" 
                                                 type="number" 
                                                 min="0"
-                                                className="block w-full rounded-lg border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                                                className="pl-10"
                                                 placeholder="0"
                                                 value={data.price} 
                                                 onChange={(e) => setData('price', e.target.value)} 
@@ -134,12 +139,11 @@ export default function Edit({ product, categories = [] }: { product: Product; c
                                     </div>
 
                                     <div>
-                                        <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">Available Stock</label>
-                                        <input 
+                                        <Label htmlFor="stock" className="mb-1 block">Available Stock</Label>
+                                        <Input 
                                             id="stock" 
                                             type="number" 
                                             min="0"
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
                                             placeholder="0"
                                             value={data.stock} 
                                             onChange={(e) => setData('stock', e.target.value)} 
@@ -152,11 +156,15 @@ export default function Edit({ product, categories = [] }: { product: Product; c
                             {/* Media Section */}
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Product Image</h3>
-                                {product.image && (
+                                {(data.image || product.image) && (
                                     <div className="mb-4">
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Current Image:</p>
-                                        <div className="h-32 w-32 rounded-lg border border-gray-200 overflow-hidden">
-                                            <img src={product.image} alt={product.name} className="h-full w-full object-cover object-center" />
+                                        <p className="text-sm font-medium text-gray-700 mb-2">{data.image ? 'New Image Preview:' : 'Current Image:'}</p>
+                                        <div className="h-32 w-32 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
+                                            <img 
+                                                src={data.image ? URL.createObjectURL(data.image) : (product.image || '')} 
+                                                alt="Preview" 
+                                                className="h-full w-full object-cover object-center" 
+                                            />
                                         </div>
                                     </div>
                                 )}
@@ -183,13 +191,13 @@ export default function Edit({ product, categories = [] }: { product: Product; c
                             <Link href="/seller/products" className="text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2">
                                 Cancel
                             </Link>
-                            <button 
+                            <Button 
                                 type="submit" 
                                 disabled={processing}
-                                className="inline-flex items-center justify-center px-6 py-2.5 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-6"
                             >
                                 {processing ? 'Updating...' : 'Update Product'}
-                            </button>
+                            </Button>
                         </div>
                     </form>
 

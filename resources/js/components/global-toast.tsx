@@ -12,9 +12,9 @@ export default function GlobalToast() {
         if (flash.error) toast.error(flash.error);
         if (flash.warning) toast.warning(flash.warning);
         if (flash.info) toast.info(flash.info);
-        if (flash.status) toast.success(flash.status); // Breeze uses 'status' for success messages
+        if (flash.status) toast.success(flash.status); 
         
     }, [flash]);
 
-    return null; // This component doesn't render anything visible
+    return null;
 }

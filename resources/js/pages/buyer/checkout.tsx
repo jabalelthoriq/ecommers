@@ -3,8 +3,14 @@ import EcommerceLayout from '@/layouts/ecommerce-layout';
 import { useForm, Link } from '@inertiajs/react';
 import { CreditCard, Truck, AlertCircle } from 'lucide-react';
 import { formatRupiah } from '@/lib/utils';
+import { z } from 'zod';
 
-
+const checkoutSchema = z.object({
+    shipping_name: z.string().min(1, { message: 'Nama belum terisi' }),
+    shipping_phone: z.string().min(1, { message: 'Nomor telepon wajib diisi' }),
+    shipping_address: z.string().min(1, { message: 'Alamat lengkap wajib diisi' }),
+    payment_method: z.enum(['transfer', 'cod'])
+});
 
 export default function Checkout({ cartItems = [] }: { cartItems?: any[] }) {
     const items = cartItems || [];
@@ -13,7 +19,7 @@ export default function Checkout({ cartItems = [] }: { cartItems?: any[] }) {
     const shippingCost = 150000;
     const total = subtotal + shippingCost;
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm({
         shipping_name: '',
         shipping_phone: '',
         shipping_address: '',
@@ -22,6 +28,16 @@ export default function Checkout({ cartItems = [] }: { cartItems?: any[] }) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+        clearErrors();
+
+        const result = checkoutSchema.safeParse(data);
+        if (!result.success) {
+            result.error.issues.forEach((issue) => {
+                return setError(issue.path[0] as keyof typeof data, issue.message);
+            });
+            return;
+        }
+
         post('/buyer/checkout');
     };
 

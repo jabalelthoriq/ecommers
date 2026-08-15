@@ -92,7 +92,7 @@ class CheckoutController extends Controller
                     'subtotal' => $price * $item->quantity,
                 ]);
 
-                // Reduce product stock
+                
                 $item->product->decrement('stock', $item->quantity);
             }
 

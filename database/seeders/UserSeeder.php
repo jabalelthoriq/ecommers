@@ -28,10 +28,10 @@ class UserSeeder extends Seeder
         //     Permission::create(['name' => $permission]);
         // }
 
-        $userRole = Role::create(['name' => 'pembeli']);
+        $userRole = Role::firstOrCreate(['name' => 'pembeli']);
         // $userRole->givePermissionTo(Permission::all());
 
-        $adminRole = Role::create(['name' => 'penjual']);
+        $adminRole = Role::firstOrCreate(['name' => 'penjual']);
         // $adminRole->givePermissionTo(Permission::all());
 
         User::factory(2)->create()->each(function ($user) use ($adminRole) {

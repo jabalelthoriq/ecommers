@@ -1,28 +1,29 @@
+import * as React from 'react';
 import DashboardAdmin from '@/layouts/dashboard-admin';
 import { Head, Link, usePage } from '@inertiajs/react';
+import { getOrderColumns, Order } from "@/components/ecommerce/data-tabel-orders/columns";
+import { DataTable } from "@/components/ecommerce/data-tabel-orders/data-table";
 import { Package, ShoppingCart, DollarSign, PlusCircle, List, ArrowRight, TrendingUp } from 'lucide-react';
 import { PageProps } from '@/types';
 import { formatRupiah } from '@/lib/utils';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 
 interface DashboardProps {
     totalProducts: number;
     totalOrders: number;
     totalRevenue: number;
-    recentOrders?: any[];
+    recentOrders?: Order[];
 }
 
-export default function Dashboard({ totalProducts = 0, totalOrders = 0, totalRevenue = 0, recentOrders = [] }: DashboardProps) {
+export default function Dashboard({ 
+    totalProducts = 0, 
+    totalOrders = 0, 
+    totalRevenue = 0, 
+    recentOrders = [] 
+}: DashboardProps) {
     const { auth } = usePage<PageProps>().props;
 
-
+    // Kolom satu pintu dari columns.tsx
+    const columns = React.useMemo(() => getOrderColumns(), []);
 
     return (
         <DashboardAdmin>
@@ -78,9 +79,9 @@ export default function Dashboard({ totalProducts = 0, totalOrders = 0, totalRev
                                 </div>
                             </div>
                             <div className="text-3xl font-extrabold text-gray-900">{totalOrders}</div>
-                            <div className="mt-2 flex items-center text-sm text-blue-600 font-medium">
+                            <Link href="/seller/orders" className="mt-2 flex items-center text-sm text-blue-600 font-medium hover:underline">
                                 <ArrowRight className="mr-1 h-4 w-4" /> View all orders
-                            </div>
+                            </Link>
                         </div>
 
                         {/* Total Products */}
@@ -92,56 +93,32 @@ export default function Dashboard({ totalProducts = 0, totalOrders = 0, totalRev
                                 </div>
                             </div>
                             <div className="text-3xl font-extrabold text-gray-900">{totalProducts}</div>
-                            <div className="mt-2 flex items-center text-sm text-purple-600 font-medium">
+                            <Link href="/seller/products" className="mt-2 flex items-center text-sm text-purple-600 font-medium hover:underline">
                                 <ArrowRight className="mr-1 h-4 w-4" /> Manage catalog
-                            </div>
+                            </Link>
                         </div>
                     </div>
 
-                    {/* Recent Orders Section */}
+                    {/* Recent Orders Section via DataTable */}
                     <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
                         <div className="border-b border-gray-100 bg-white px-6 py-5 flex justify-between items-center">
                             <h3 className="text-lg font-bold text-gray-900">Recent Orders</h3>
-                            <Link href="/seller/orders" className="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                            <Link href="/seller/orders" className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
                                 View All
                             </Link>
                         </div>
-                        <div className="overflow-x-auto">
-                            <Table>
-                                <TableHeader className="bg-gray-50/80">
-                                    <TableRow>
-                                        <TableHead className="px-6 py-4 uppercase tracking-wider text-xs font-semibold text-gray-500">Order ID</TableHead>
-                                        <TableHead className="px-6 py-4 uppercase tracking-wider text-xs font-semibold text-gray-500">Customer</TableHead>
-                                        <TableHead className="px-6 py-4 uppercase tracking-wider text-xs font-semibold text-gray-500">Status</TableHead>
-                                        <TableHead className="px-6 py-4 text-right uppercase tracking-wider text-xs font-semibold text-gray-500">Amount</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {recentOrders.length > 0 ? recentOrders.map((order: any) => (
-                                        <TableRow key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                                            <TableCell className="px-6 py-4 font-semibold text-indigo-600">#{order.order_number || order.id}</TableCell>
-                                            <TableCell className="px-6 py-4 text-gray-700 font-medium">{order.shipping_name || order.user?.name || 'Customer'}</TableCell>
-                                            <TableCell className="px-6 py-4">
-                                                <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                                                    {order.status}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="px-6 py-4 text-right font-bold text-gray-900">
-                                                {formatRupiah(order.total_amount || order.total || 0)}
-                                            </TableCell>
-                                        </TableRow>
-                                    )) : (
-                                        <TableRow>
-                                            <TableCell colSpan={4} className="h-32 text-center text-gray-500">
-                                                <div className="flex flex-col items-center justify-center">
-                                                    <ShoppingCart className="h-10 w-10 text-gray-300 mb-3" />
-                                                    <p>No recent orders found.</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
+                        
+                        <div className="p-6">
+                            <DataTable 
+                                columns={columns} 
+                                data={recentOrders}
+                                initialVisibility={{
+                                    created_at: false, 
+                                    actions: false     
+                                }}
+                                showSearch={false}     
+                                showPagination={false} 
+                            />
                         </div>
                     </div>
 
